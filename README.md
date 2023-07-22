@@ -1,2 +1,66 @@
-# export-datagridview-to-excel
-## use exportToCSV.c# file to export a data grid view to excel
+# Export Data Grid View To Excel
+
+```csharp
+using OfficeOpenXml;
+
+
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+
+
+            if (dgv_print.Rows.Count > 0)
+            {
+                SaveFileDialog sfd = new SaveFileDialog();
+                sfd.Filter = "Excel (.xlsx)|  *.xlsx";
+                sfd.FileName = "Output.xlsx";
+
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        FileInfo file = new FileInfo(sfd.FileName);
+                        using (ExcelPackage package = new ExcelPackage(file))
+                        {
+                            ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Output");
+
+                            // Header row formatting
+                            for (int i = 0; i < dgv_print.Columns.Count; i++)
+                            {
+                                worksheet.Cells[1, i + 1].Value = dgv_print.Columns[i].HeaderText;
+                                worksheet.Cells[1, i + 1].Style.Font.Name = "Calibri";
+                                worksheet.Cells[1, i + 1].Style.Font.Bold = true;
+                                worksheet.Cells[1, i + 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                worksheet.Cells[1, i + 1].Style.Fill.BackgroundColor.SetColor(Color.Wheat);
+                                worksheet.Cells[1, i + 1].Style.Font.Size = 12;
+                            }
+
+                            // Data rows
+                            for (int i = 0; i < dgv_print.Rows.Count; i++)
+                            {
+                                for (int j = 0; j < dgv_print.Columns.Count; j++)
+                                {
+                                    if (dgv_print.Rows[i].Cells[j].Value != null)
+                                    {
+                                        worksheet.Cells[i + 2, j + 1].Value = dgv_print.Rows[i].Cells[j].Value.ToString();
+                                    }
+                                }
+                            }
+
+                            worksheet.Cells.AutoFitColumns(0); // Auto-fit columns, use 0 for all columns
+
+                            package.Save();
+                        }
+
+                        MessageBox.Show("Data Exported Successfully !!!", "Info");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error: " + ex.Message);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("No Record To Export !!!", "Info");
+            }
+```
